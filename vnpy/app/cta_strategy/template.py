@@ -11,7 +11,9 @@ from .base import StopOrder, EngineType
 
 
 class CtaTemplate(ABC):
-    """"""
+    """
+    本文件包含了CTA引擎中的策略开发用模板，开发策略时需要继承CtaTemplate类。
+    """
 
     author = ""
     parameters = []
@@ -29,9 +31,9 @@ class CtaTemplate(ABC):
         self.strategy_name = strategy_name
         self.vt_symbol = vt_symbol
 
-        self.inited = False
-        self.trading = False
-        self.pos = 0
+        self.inited = False      # 是否进行了初始化
+        self.trading = False     # 是否启动交易，由引擎管理
+        self.pos = 0             # 持仓情况
 
         # Copy a new variables list here to avoid duplicate insert when multiple
         # strategy instances are created with the same strategy class.
@@ -150,25 +152,25 @@ class CtaTemplate(ABC):
 
     def buy(self, price: float, volume: float, stop: bool = False, lock: bool = False):
         """
-        Send buy order to open a long position.
+        Send buy order to open a long position. 买开
         """
         return self.send_order(Direction.LONG, Offset.OPEN, price, volume, stop, lock)
 
     def sell(self, price: float, volume: float, stop: bool = False, lock: bool = False):
         """
-        Send sell order to close a long position.
+        Send sell order to close a long position. 卖平
         """
         return self.send_order(Direction.SHORT, Offset.CLOSE, price, volume, stop, lock)
 
     def short(self, price: float, volume: float, stop: bool = False, lock: bool = False):
         """
-        Send short order to open as short position.
+        Send short order to open as short position. 卖开
         """
         return self.send_order(Direction.SHORT, Offset.OPEN, price, volume, stop, lock)
 
     def cover(self, price: float, volume: float, stop: bool = False, lock: bool = False):
         """
-        Send cover order to close a short position.
+        Send cover order to close a short position. 买平
         """
         return self.send_order(Direction.LONG, Offset.CLOSE, price, volume, stop, lock)
 

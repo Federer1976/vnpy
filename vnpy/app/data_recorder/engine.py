@@ -1,5 +1,8 @@
-""""""
+'''
+本文件中实现了行情数据记录引擎，用于汇总TICK数据，并生成K线插入数据库。
 
+使用DR_setting.json来配置需要收集的合约，以及主力合约代码。
+'''
 import sys
 from threading import Thread
 from queue import Queue, Empty
