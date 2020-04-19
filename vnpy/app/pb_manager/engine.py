@@ -168,7 +168,7 @@ class PbManagerEngine(BaseEngine):
                             'WTSL': sell_list.iloc[n]['vol'],  # N12 委托数量
                             'WBZDYXH': get_serial_no()}]  # N9  第三方系统自定义号
 
-        return write_wt_dbf(self.file_path + PB_WT_FILENAME, sell_order)
+        return write_wt_dbf(self.file_path + os.sep + PB_WT_FILENAME, sell_order)
 
     def generate_buy_order(self):
         """
@@ -212,7 +212,7 @@ class PbManagerEngine(BaseEngine):
                            'WTSL': buy_list.iloc[n]['vol'],  # N12 委托数量
                            'WBZDYXH': get_serial_no()}]  # N9  第三方系统自定义号
 
-        return write_wt_dbf(self.file_path + PB_WT_FILENAME, buy_order)
+        return write_wt_dbf(self.file_path + os.sep + PB_WT_FILENAME, buy_order)
 
     def get_order_result(self) -> pd.DataFrame:
 

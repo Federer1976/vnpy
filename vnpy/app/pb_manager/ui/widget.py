@@ -65,6 +65,8 @@ class PbManagerWidget(QtWidgets.QWidget):
         hbox2 = QtWidgets.QHBoxLayout()
         hbox2.addWidget(self.stock_list_table)
         hbox2.addWidget(self.order_table)
+        hbox2.setStretchFactor(self.stock_list_table, 1)
+        hbox2.setStretchFactor(self.order_table, 3)
 
         hbox3 = QtWidgets.QHBoxLayout()
         hbox3.addWidget(self.position_table)
@@ -193,7 +195,7 @@ class PbManagerWidget(QtWidgets.QWidget):
 
         for row in range(len(df)):
             for col in range(len(df.columns)):
-                self.order_table.setItem(row, col, QtWidgets.QTableWidgetItem(str(df.iloc[row, col])))
+                self.order_table.setItem(row, col, QtWidgets.QTableWidgetItem(str(df.iloc[row, col]).strip()))
 
         self.available_capital_label.setText('{:,}'.format(self.engine.available_capital))
 
