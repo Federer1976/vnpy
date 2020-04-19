@@ -23,3 +23,5 @@ deap
 pyzmq
 wmi
 QScintilla
+dbf
+quantaxis
