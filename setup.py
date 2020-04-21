@@ -77,6 +77,7 @@ def get_install_requires():
         "deap",
         "pyzmq",
         "QScintilla"
+        "dbf"
     ]
     if not is_psycopg2_exists():
         install_requires.append("psycopg2-binary")
