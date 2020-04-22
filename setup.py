@@ -76,8 +76,8 @@ def get_install_requires():
         "ibapi",
         "deap",
         "pyzmq",
-        "QScintilla"
-        "dbf"
+        "QScintilla",
+        "dbf",
         "xlrd"
     ]
     if not is_psycopg2_exists():
