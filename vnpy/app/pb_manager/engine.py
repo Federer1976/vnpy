@@ -21,6 +21,7 @@ class PbManagerEngine(BaseEngine):
         super().__init__(main_engine, event_engine, APP_NAME)
         self.position: pd.DataFrame = None      # 当前持仓
         self.available_capital: float = 0.0     # 可用资金
+        self.total_money: float = 0.0           # 总资金
         self.stock_list: pd.DataFrame = None
         self.file_path: str = ''
         self.origin_pos: pd.DataFrame = None    # 持仓原始数据
@@ -124,7 +125,8 @@ class PbManagerEngine(BaseEngine):
         try:
             capital = pd.read_csv(filename, sep=',', encoding="gbk")
             self.available_capital = capital.loc[0, '可用余额']
-            return self.available_capital
+            self.total_money = capital.loc[0, '单元净值']
+            return self.total_money
 
         except Exception as e:
             print(e)
@@ -137,7 +139,7 @@ class PbManagerEngine(BaseEngine):
         """
         position = self.position
         stock_list_for_buy = self.stock_list
-        money = self.available_capital
+        money = self.total_money
 
         if position is None or stock_list_for_buy is None or money is None:
             print('数据源有问题，请检查数据源！')
@@ -177,7 +179,7 @@ class PbManagerEngine(BaseEngine):
         """
         position = self.position
         stock_list_for_buy = self.stock_list
-        money = self.available_capital
+        money = self.total_money
 
         if position is None or stock_list_for_buy is None or money is None:
             print('数据源有问题，请检查数据源！')
