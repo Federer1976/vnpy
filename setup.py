@@ -76,7 +76,9 @@ def get_install_requires():
         "ibapi",
         "deap",
         "pyzmq",
-        "QScintilla"
+        "QScintilla",
+        "dbf",
+        "xlrd"
     ]
     if not is_psycopg2_exists():
         install_requires.append("psycopg2-binary")

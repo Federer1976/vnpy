@@ -24,4 +24,5 @@ pyzmq
 wmi
 QScintilla
 dbf
+xlrd
 https://github.com/Federer1976/QUANTAXIS.git
