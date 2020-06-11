@@ -28,9 +28,9 @@ class PbManagerEngine(BaseEngine):
     def init_data(
         self,
         file_path: str,
-        strCPBH: str = '0121',
-        strZCDYBH: str = '2',
-        strZHBH: str = '2',
+        strCPBH: str = '1040',
+        strZCDYBH: str = '1',
+        strZHBH: str = '1',
     ) -> None:
         """
         初始化数据

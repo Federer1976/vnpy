@@ -24,4 +24,4 @@ pyzmq
 wmi
 QScintilla
 dbf
-quantaxis
+https://github.com/Federer1976/QUANTAXIS.git
