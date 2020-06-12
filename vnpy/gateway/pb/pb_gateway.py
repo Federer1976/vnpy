@@ -122,31 +122,31 @@ symbol_name_map: Dict[str, str] = {}
 symbol_pricetick_map: Dict[str, float] = {}
 
 
-class XtpGateway(BaseGateway):
+class PbGateway(BaseGateway):
 
     default_setting: Dict[str, Any] = {
-        "账号": "53191000525",
-        "密码": "Z2hCnH9R",
+        "账号": "",
+        "密码": "",
         "客户号": 1,
-        "行情地址": "120.27.164.138",
-        "行情端口": 6002,
-        "交易地址": "120.27.164.69",
-        "交易端口": 6001,
-        "行情协议": "UDP",
-        "授权码": "b8aa7173bba3470e390d787219b2112e"
+        "行情地址": "",
+        "行情端口": 0,
+        "交易地址": "",
+        "交易端口": 0,
+        "行情协议": ["TCP", "UDP"],
+        "授权码": ""
     }
 
     exchanges: List[Exchange] = list(EXCHANGE_VT2XTP.keys())
 
     def __init__(self, event_engine: EventEngine):
         """"""
-        super().__init__(event_engine, "XTP")
+        super().__init__(event_engine, "PB")
 
         self.md_api = XtpMdApi(self)
         self.td_api = XtpTdApi(self)
 
     def connect(self, setting: dict) -> None:
-        """"""
+        """设置交易的路径，便于对文件进行操作"""
         userid = setting["账号"]
         password = setting["密码"]
         client_id = int(setting["客户号"])
@@ -163,27 +163,26 @@ class XtpGateway(BaseGateway):
 
     def close(self) -> None:
         """"""
-        self.md_api.close()
-        self.td_api.close()
+        pass
 
     def subscribe(self, req: SubscribeRequest) -> None:
-        """"""
+        """利用pytdx接口进行订阅"""
         self.md_api.subscrbie(req)
 
     def send_order(self, req: OrderRequest) -> str:
-        """"""
+        """写XHPT_WT#YYYMMDD#.DBF文件"""
         return self.td_api.send_order(req)
 
     def cancel_order(self, req: CancelRequest) -> None:
-        """"""
+        """写XHPT_CD#YYYYMMDD#.DBF"""
         self.td_api.cancel_order(req)
 
     def query_account(self) -> None:
-        """"""
+        """读ZJ_STOCK_20200422.csv"""
         self.td_api.query_account()
 
     def query_position(self) -> None:
-        """"""
+        """读CC_STOCK_YYYYMMDD.csv"""
         self.td_api.query_position()
 
     def process_timer_event(self, event) -> None:

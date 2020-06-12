@@ -19,7 +19,7 @@ class PbManagerWidget(QtWidgets.QWidget):
         self.position_table = None
         self.order_table = None
         self.stock_list_table = None
-        self.available_capital_label = None
+        self.total_money_label = None
 
         self.init_ui()
 
@@ -42,10 +42,10 @@ class PbManagerWidget(QtWidgets.QWidget):
         self.path_edit = QtWidgets.QLineEdit()
 
         label1 = QtWidgets.QLabel()
-        label1.setText("可用资金(元):")
+        label1.setText("总资金(元):")
 
-        self.available_capital_label = QtWidgets.QLabel()
-        self.available_capital_label.setText('0.0')
+        self.total_money_label = QtWidgets.QLabel()
+        self.total_money_label.setText('0.0')
 
         sell_button = QtWidgets.QPushButton("卖出")
         sell_button.clicked.connect(self.send_sell_order)
@@ -58,7 +58,7 @@ class PbManagerWidget(QtWidgets.QWidget):
         hbox1.addWidget(path_button)
         hbox1.addWidget(self.path_edit)
         hbox1.addWidget(label1)
-        hbox1.addWidget(self.available_capital_label)
+        hbox1.addWidget(self.total_money_label)
         hbox1.addWidget(sell_button)
         hbox1.addWidget(buy_button)
 
@@ -197,6 +197,6 @@ class PbManagerWidget(QtWidgets.QWidget):
             for col in range(len(df.columns)):
                 self.order_table.setItem(row, col, QtWidgets.QTableWidgetItem(str(df.iloc[row, col]).strip()))
 
-        self.available_capital_label.setText('{:,}'.format(self.engine.available_capital))
+        self.total_money_label.setText('{:,}'.format(self.engine.total_money))
 
 
