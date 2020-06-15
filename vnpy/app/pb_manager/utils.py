@@ -129,7 +129,7 @@ def split_order(data: pd.DataFrame):
 
     df = origin_data.append(new_order)
 
-    return df[['exchange', 'vol']]
+    return df[['exchange', 'vol', 'price']]
 
 
 # def get_sell_stock_list(filename=WORK_PATH + POSITION_FILENAME):

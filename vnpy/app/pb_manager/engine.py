@@ -132,7 +132,7 @@ class PbManagerEngine(BaseEngine):
             print(e)
             return None
 
-    def generate_sell_order(self):
+    def generate_sell_order_list(self):
         """
         根据股票持仓及买入需求，生成股票卖出指令
         :return:
@@ -151,10 +151,46 @@ class PbManagerEngine(BaseEngine):
         stock_list_for_buy['vol_for_buy'] = money * stock_list_for_buy['weight'] / stock_price['price']
 
         position['real_vol'] = position['available_vol'] - stock_list_for_buy['vol_for_buy']
+        position['price'] = stock_price['price']
+        sell_list = position.fillna(value={'real_vol': position['available_vol']})
 
-        sell_list = position[position['real_vol'] > 0]
+        sell_list = sell_list[sell_list['real_vol'] > 100]
 
+        stock_price = QA_fetch_get_stock_realtime(sell_list.index.tolist(),
+                                                  ip='120.234.57.15', port=7709).reset_index().set_index('code')
+        sell_list['price'] = stock_price['price']
         sell_list = split_order(sell_list)
+
+        return sell_list[sell_list['vol'] > 0]
+
+    def generate_sell_order(
+        self,
+        sell_list: pd.DataFrame,
+    ):
+        """
+        根据股票持仓及买入需求，生成股票卖出指令
+        :return:
+        """
+        # position = self.position
+        # stock_list_for_buy = self.stock_list
+        # money = self.total_money
+        #
+        # if position is None or stock_list_for_buy is None or money is None:
+        #     print('数据源有问题，请检查数据源！')
+        #     return None
+        #
+        # stock_price = QA_fetch_get_stock_realtime(stock_list_for_buy.index.tolist(),
+        #                                           ip='120.234.57.15', port=7709).reset_index().set_index('code')
+        #
+        # stock_list_for_buy['vol_for_buy'] = money * stock_list_for_buy['weight'] / stock_price['price']
+        #
+        # position['real_vol'] = position['available_vol'] - stock_list_for_buy['vol_for_buy']
+        #
+        # position['price'] = stock_price['price']
+        #
+        # sell_list = position[position['real_vol'] > 100]
+        #
+        # sell_list = split_order(sell_list)
 
         sell_order = []
         for n in range(len(sell_list)):
@@ -166,13 +202,13 @@ class PbManagerEngine(BaseEngine):
                             'ZQDM': sell_list.index[n],  # C16 证券代码
                             'WTFX': Direction.SELL,  # C4  委托方向
                             'WTJGLX': dictWTJGLX[sell_list.iloc[n]['exchange']],  # C1  委托价格类型
-                            'WTJG': stock_price.loc[sell_list.index[n]]['price'],  # N11.4	委托价格
+                            'WTJG': sell_list.iloc[n]['price'],  # N11.4	委托价格
                             'WTSL': sell_list.iloc[n]['vol'],  # N12 委托数量
                             'WBZDYXH': get_serial_no()}]  # N9  第三方系统自定义号
 
         return write_wt_dbf(self.file_path + os.sep + PB_WT_FILENAME, sell_order)
 
-    def generate_buy_order(self):
+    def generate_buy_order_list(self):
         """
         根据持仓情况生成买入指令
         :return:
@@ -195,10 +231,46 @@ class PbManagerEngine(BaseEngine):
         stock_list_for_buy['real_vol'] = stock_list_for_buy['vol_for_buy'] - position['available_vol']
 
         buy_list = stock_list_for_buy.fillna(value={'real_vol': stock_list_for_buy['vol_for_buy']})
+        buy_list['price'] = stock_price['price']
 
         buy_list = buy_list[buy_list['real_vol'] > 0]
 
         buy_list = split_order(buy_list)
+
+        return buy_list
+
+
+    def generate_buy_order(
+        self,
+        buy_list: pd.DataFrame,
+    ):
+        """
+        根据持仓情况生成买入指令
+        :return:
+        """
+        # position = self.position
+        # stock_list_for_buy = self.stock_list
+        # money = self.total_money
+        #
+        # if position is None or stock_list_for_buy is None or money is None:
+        #     print('数据源有问题，请检查数据源！')
+        #     return None
+        #
+        # stock_price = QA_fetch_get_stock_realtime(stock_list_for_buy.index.tolist(),
+        #                                           ip='120.234.57.15', port=7709).reset_index().set_index('code')
+        # # stock_price = stock_price[stock_price['price'] != 0]
+        #
+        # stock_list_for_buy['vol_for_buy'] = money * stock_list_for_buy['weight'] / stock_price['price']
+        #
+        # stock_list_for_buy = stock_list_for_buy[np.isinf(stock_list_for_buy['vol_for_buy']) == False]
+        # stock_list_for_buy['real_vol'] = stock_list_for_buy['vol_for_buy'] - position['available_vol']
+        #
+        # buy_list = stock_list_for_buy.fillna(value={'real_vol': stock_list_for_buy['vol_for_buy']})
+        # buy_list['price'] = stock_price['price']
+        #
+        # buy_list = buy_list[buy_list['real_vol'] > 0]
+        #
+        # buy_list = split_order(buy_list)
 
         buy_order = []
         for n in range(len(buy_list)):
@@ -210,7 +282,8 @@ class PbManagerEngine(BaseEngine):
                            'ZQDM': buy_list.index[n],  # C16 证券代码
                            'WTFX': Direction.BUY,  # C4  委托方向
                            'WTJGLX': dictWTJGLX[buy_list.iloc[n]['exchange']],  # C1  委托价格类型
-                           'WTJG': stock_price.loc[buy_list.index[n]]['price'],  # N11.4	委托价格
+                           # 'WTJG': stock_price.loc[buy_list.index[n]]['price'],  # N11.4	委托价格
+                           'WTJG': buy_list.iloc[n]['price'],  # N11.4	委托价格
                            'WTSL': buy_list.iloc[n]['vol'],  # N12 委托数量
                            'WBZDYXH': get_serial_no()}]  # N9  第三方系统自定义号
 

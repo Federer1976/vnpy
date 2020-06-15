@@ -206,3 +206,21 @@ STOCK_FOR_BUY_COLUMN_NAMES = [
     "权重",
     "交易所"
 ]
+
+STOCK_FOR_SELL_ORDER_COLUMN_NAMES = [
+    "选择",
+    "证券代码",
+    "证券名称",
+    "交易所",
+    "卖出数量",
+    "价格"
+]
+
+STOCK_FOR_BUY_ORDER_COLUMN_NAMES = [
+    "选择",
+    "证券代码",
+    "证券名称",
+    "交易所",
+    "买入数量",
+    "价格"
+]

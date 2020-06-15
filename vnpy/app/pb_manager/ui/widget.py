@@ -1,9 +1,10 @@
-from vnpy.trader.ui import QtWidgets
+from vnpy.trader.ui import QtWidgets, QtCore
 from vnpy.trader.engine import MainEngine, EventEngine
 
 from ..engine import APP_NAME, PbManagerEngine
 from ..constants import *
 import os
+import pandas as pd
 
 
 class PbManagerWidget(QtWidgets.QWidget):
@@ -20,6 +21,9 @@ class PbManagerWidget(QtWidgets.QWidget):
         self.order_table = None
         self.stock_list_table = None
         self.total_money_label = None
+        self.buy_order_table = None
+        self.sell_order_table = None
+        self.tab_table = None
 
         self.init_ui()
 
@@ -47,8 +51,14 @@ class PbManagerWidget(QtWidgets.QWidget):
         self.total_money_label = QtWidgets.QLabel()
         self.total_money_label.setText('0.0')
 
+        generate_sell_order = QtWidgets.QPushButton("生成卖单")
+        generate_sell_order.clicked.connect(self.generate_sell_order)
+
         sell_button = QtWidgets.QPushButton("卖出")
         sell_button.clicked.connect(self.send_sell_order)
+
+        generate_buy_order = QtWidgets.QPushButton("生成买单")
+        generate_buy_order.clicked.connect(self.generate_buy_order)
 
         buy_button = QtWidgets.QPushButton("买入")
         buy_button.clicked.connect(self.send_buy_order)
@@ -59,14 +69,16 @@ class PbManagerWidget(QtWidgets.QWidget):
         hbox1.addWidget(self.path_edit)
         hbox1.addWidget(label1)
         hbox1.addWidget(self.total_money_label)
+        hbox1.addWidget(generate_sell_order)
         hbox1.addWidget(sell_button)
+        hbox1.addWidget(generate_buy_order)
         hbox1.addWidget(buy_button)
 
         hbox2 = QtWidgets.QHBoxLayout()
         hbox2.addWidget(self.stock_list_table)
-        hbox2.addWidget(self.order_table)
+        hbox2.addWidget(self.tab_table)
         hbox2.setStretchFactor(self.stock_list_table, 1)
-        hbox2.setStretchFactor(self.order_table, 3)
+        hbox2.setStretchFactor(self.tab_table, 3)
 
         hbox3 = QtWidgets.QHBoxLayout()
         hbox3.addWidget(self.position_table)
@@ -103,6 +115,144 @@ class PbManagerWidget(QtWidgets.QWidget):
             QtWidgets.QHeaderView.ResizeToContents
         )
 
+        self.buy_order_table = QtWidgets.QTableWidget()
+        self.buy_order_table.setColumnCount(len(STOCK_FOR_BUY_ORDER_COLUMN_NAMES))
+        self.buy_order_table.setHorizontalHeaderLabels(STOCK_FOR_BUY_ORDER_COLUMN_NAMES)
+        self.buy_order_table.verticalHeader().setVisible(False)
+        self.buy_order_table.horizontalHeader().setSectionResizeMode(
+            QtWidgets.QHeaderView.ResizeToContents
+        )
+
+        self.sell_order_table = QtWidgets.QTableWidget()
+        self.sell_order_table.setColumnCount(len(STOCK_FOR_SELL_ORDER_COLUMN_NAMES))
+        self.sell_order_table.setHorizontalHeaderLabels(STOCK_FOR_SELL_ORDER_COLUMN_NAMES)
+        self.sell_order_table.verticalHeader().setVisible(False)
+        self.sell_order_table.horizontalHeader().setSectionResizeMode(
+            QtWidgets.QHeaderView.ResizeToContents
+        )
+
+        # 允许弹出菜单
+        self.buy_order_table.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.sell_order_table.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+
+        # 将信号请求连接到槽（单击鼠标右键，就调用方法）
+        self.buy_order_table.customContextMenuRequested.connect(self.generateMenu)
+        self.sell_order_table.customContextMenuRequested.connect(self.generatexPopMenu)
+
+        self.tab_table = QtWidgets.QTabWidget()
+        self.tab_table.addTab(self.order_table, "委托")
+        self.tab_table.addTab(self.sell_order_table, "卖出委托")
+        self.tab_table.addTab(self.buy_order_table, "买入委托")
+        self.tab_table.setTabPosition(QtWidgets.QTabWidget.South)
+
+
+    def generateMenu(self, pos):
+
+        rowNums = []
+        items = self.buy_order_table.selectedItems()
+        for num in range(len(items)):
+            rowNums.append(self.buy_order_table.row(items[num]))
+
+        rowNums.sort(key=None, reverse=True)
+
+        # 如果选择的行索引小于1，弹出上下文菜单
+        # if rowNum < 3:
+        menu = QtWidgets.QMenu()
+        itemAdd = menu.addAction("增加")
+        itemDel = menu.addAction("删除")
+        itemSellectAll = menu.addAction("全选")
+        itemUnSellect = menu.addAction("反选")
+
+        # 使菜单在正常位置显示
+        screenPos = self.buy_order_table.mapToGlobal(pos)
+
+        maxRow = self.buy_order_table.rowCount()
+
+        # 单击一个菜单项就返回，使之被阻塞
+        action = menu.exec(screenPos)
+        if action == itemAdd:
+            self.buy_order_table.setRowCount(maxRow + 1)
+            checkbox = QtWidgets.QTableWidgetItem()
+            checkbox.setCheckState(QtCore.Qt.Unchecked)
+            self.buy_order_table.setItem(maxRow, 0, checkbox)
+            self.buy_order_table.setItem(maxRow, 1, QtWidgets.QTableWidgetItem(""))
+            self.buy_order_table.setItem(maxRow, 2, QtWidgets.QTableWidgetItem(""))
+            self.buy_order_table.setItem(maxRow, 3, QtWidgets.QTableWidgetItem(""))
+            self.buy_order_table.setItem(maxRow, 4, QtWidgets.QTableWidgetItem(""))
+            self.buy_order_table.setItem(maxRow, 5, QtWidgets.QTableWidgetItem(""))
+
+        if action == itemDel:
+            for i in range(len(rowNums)):
+                self.buy_order_table.removeRow(rowNums[i])
+
+        if action == itemSellectAll:
+            for row in range(maxRow):
+                self.buy_order_table.item(row, 0).setCheckState(QtCore.Qt.Checked)
+
+        if action == itemUnSellect:
+            for row in range(maxRow):
+                if self.buy_order_table.item(row, 0).checkState() == QtCore.Qt.Unchecked:
+                    self.buy_order_table.item(row, 0).setCheckState(QtCore.Qt.Checked)
+                else:
+                    self.buy_order_table.item(row, 0).setCheckState(QtCore.Qt.Unchecked)
+        else:
+            return
+
+    def generatexPopMenu(
+        self,
+        pos: QtCore.QPoint,
+    ):
+        table = self.sell_order_table
+        rowNums = []
+        items = table.selectedItems()
+        for num in range(len(items)):
+            rowNums.append(table.row(items[num]))
+
+        rowNums.sort(key=None, reverse=True)
+
+        # 如果选择的行索引小于1，弹出上下文菜单
+        # if rowNum < 3:
+        menu = QtWidgets.QMenu()
+        itemAdd = menu.addAction("增加")
+        itemDel = menu.addAction("删除")
+        itemSellectAll = menu.addAction("全选")
+        itemUnSellect = menu.addAction("反选")
+
+        # 使菜单在正常位置显示
+        screenPos = table.mapToGlobal(pos)
+
+        maxRow = table.rowCount()
+
+        # 单击一个菜单项就返回，使之被阻塞
+        action = menu.exec(screenPos)
+        if action == itemAdd:
+            table.setRowCount(maxRow + 1)
+            checkbox = QtWidgets.QTableWidgetItem()
+            checkbox.setCheckState(QtCore.Qt.Unchecked)
+            table.setItem(maxRow, 0, checkbox)
+            table.setItem(maxRow, 1, QtWidgets.QTableWidgetItem(""))
+            table.setItem(maxRow, 2, QtWidgets.QTableWidgetItem(""))
+            table.setItem(maxRow, 3, QtWidgets.QTableWidgetItem(""))
+            table.setItem(maxRow, 4, QtWidgets.QTableWidgetItem(""))
+            table.setItem(maxRow, 5, QtWidgets.QTableWidgetItem(""))
+
+        if action == itemDel:
+            for i in range(len(rowNums)):
+                table.removeRow(rowNums[i])
+
+        if action == itemSellectAll:
+            for row in range(maxRow):
+                table.item(row, 0).setCheckState(QtCore.Qt.Checked)
+
+        if action == itemUnSellect:
+            for row in range(maxRow):
+                if table.item(row, 0).checkState() == QtCore.Qt.Unchecked:
+                    table.item(row, 0).setCheckState(QtCore.Qt.Checked)
+                else:
+                    table.item(row, 0).setCheckState(QtCore.Qt.Unchecked)
+        else:
+            return
+
     def init_stock_list_table(self) -> None:
         """"""
         labels = STOCK_FOR_BUY_COLUMN_NAMES
@@ -115,7 +265,7 @@ class PbManagerWidget(QtWidgets.QWidget):
             QtWidgets.QHeaderView.ResizeToContents
         )
 
-    def send_sell_order(self):
+    def generate_sell_order(self):
         """"""
         if not os.path.isdir(self.path_edit.text()):
             QtWidgets.QMessageBox.information(self, "输入错误", '工作路径不是合法目录，请重新选择！')
@@ -124,18 +274,106 @@ class PbManagerWidget(QtWidgets.QWidget):
         # 获取数据
         self.engine.init_data(self.path_edit.text())
 
-        self.engine.generate_sell_order()
+        sell_order_list = self.engine.generate_sell_order_list().reset_index()
+
+        self.sell_order_table.setRowCount(0)
+        self.sell_order_table.setRowCount(len(sell_order_list))
+
+        for row in range(len(sell_order_list)):
+
+            checkbox = QtWidgets.QTableWidgetItem()
+            checkbox.setCheckState(QtCore.Qt.Checked)
+            self.sell_order_table.setItem(row, 0, checkbox)
+            self.sell_order_table.setItem(row, 1, QtWidgets.QTableWidgetItem(str(sell_order_list.iloc[row, 0]).strip()))
+            self.sell_order_table.setItem(row, 3, QtWidgets.QTableWidgetItem(str(sell_order_list.iloc[row, 1]).strip()))
+            self.sell_order_table.setItem(row, 4, QtWidgets.QTableWidgetItem(str(sell_order_list.iloc[row, 2]).strip()))
+            self.sell_order_table.setItem(row, 5, QtWidgets.QTableWidgetItem(str(sell_order_list.iloc[row, 3]).strip()))
+
+        self.tab_table.setCurrentIndex(1)
+
+    def send_sell_order(self):
+        """"""
+        # if not os.path.isdir(self.path_edit.text()):
+        #     QtWidgets.QMessageBox.information(self, "输入错误", '工作路径不是合法目录，请重新选择！')
+        #     return None
+        #
+        # # 获取数据
+        # self.engine.init_data(self.path_edit.text())
+
+        df = pd.DataFrame()
+
+        # 获取tab中的数据
+        for row in range(self.sell_order_table.rowCount()):
+            if self.sell_order_table.item(row, 0).checkState() == QtCore.Qt.Checked:
+                code = self.sell_order_table.item(row, 1).text()
+                exchange = self.sell_order_table.item(row, 3).text()
+                vol = int(self.sell_order_table.item(row, 4).text())
+                price = round(float(self.sell_order_table.item(row, 5).text()), 2)
+                data = pd.DataFrame([[code, exchange, vol, price]], columns=["code", "exchange", "vol", 'price'])
+                df = df.append(data)
+
+        if len(df) == 0:
+            return None
+
+        self.engine.generate_sell_order(df.set_index('code'))
+
+        self.refresh_data()
+        self.tab_table.setCurrentIndex(0)
+
+    def generate_buy_order(self):
+        """"""
+        if not os.path.isdir(self.path_edit.text()):
+            QtWidgets.QMessageBox.information(self, "输入错误", '工作路径不是合法目录，请重新选择！')
+            return None
+
+        # 获取数据
+        self.engine.init_data(self.path_edit.text())
+
+        buy_order_list = self.engine.generate_buy_order_list().reset_index()
+
+        self.buy_order_table.setRowCount(0)
+        self.buy_order_table.setRowCount(len(buy_order_list))
+
+        for row in range(len(buy_order_list)):
+            checkbox = QtWidgets.QTableWidgetItem()
+            checkbox.setCheckState(QtCore.Qt.Checked)
+            self.buy_order_table.setItem(row, 0, checkbox)
+            self.buy_order_table.setItem(row, 1, QtWidgets.QTableWidgetItem(str(buy_order_list.iloc[row, 0]).strip()))
+            self.buy_order_table.setItem(row, 3, QtWidgets.QTableWidgetItem(str(buy_order_list.iloc[row, 1]).strip()))
+            self.buy_order_table.setItem(row, 4, QtWidgets.QTableWidgetItem(str(buy_order_list.iloc[row, 2]).strip()))
+            self.buy_order_table.setItem(row, 5, QtWidgets.QTableWidgetItem(str(buy_order_list.iloc[row, 3]).strip()))
+
+
+        self.tab_table.setCurrentIndex(2)
 
     def send_buy_order(self):
         """"""
-        if not os.path.isdir(self.path_edit.text()):
-            QtWidgets.QMessageBox.information(self, "输入错误", '工作路径不是合法目录，请重新选择！')
+        # if not os.path.isdir(self.path_edit.text()):
+        #     QtWidgets.QMessageBox.information(self, "输入错误", '工作路径不是合法目录，请重新选择！')
+        #     return None
+        #
+        # # 获取数据
+        # self.engine.init_data(self.path_edit.text())
+
+        df = pd.DataFrame()
+
+        # 获取tab中的数据
+        for row in range(self.buy_order_table.rowCount()):
+            if self.buy_order_table.item(row, 0).checkState() == QtCore.Qt.Checked:
+                code = self.buy_order_table.item(row, 1).text()
+                exchange = self.buy_order_table.item(row, 3).text()
+                vol = int(self.buy_order_table.item(row, 4).text())
+                price = round(float(self.buy_order_table.item(row, 5).text()), 2)
+                data = pd.DataFrame([[code, exchange, vol, price]], columns=["code", "exchange", "vol", 'price'])
+                df = df.append(data)
+
+        if len(df) == 0:
             return None
 
-        # 获取数据
-        self.engine.init_data(self.path_edit.text())
+        self.engine.generate_buy_order(df.set_index('code'))
 
-        self.engine.generate_buy_order()
+        self.refresh_data()
+        self.tab_table.setCurrentIndex(0)
 
     def set_work_path(self):
         """"""
@@ -146,6 +384,8 @@ class PbManagerWidget(QtWidgets.QWidget):
         if result != '':
             self.path_edit.setText(result)
             self.engine.file_path = self.path_edit.text()
+
+        self.refresh_data()
 
     def refresh_data(self):
         """"""
@@ -164,7 +404,7 @@ class PbManagerWidget(QtWidgets.QWidget):
             QtWidgets.QMessageBox.information(self, '文件名不正确', '文件不存在，请检查是否存在：成分股.xlsx！')
             return None
 
-        # 更新表格
+        # 更新成分股
         stock_list = self.engine.stock_list.reset_index()
 
         self.stock_list_table.setRowCount(0)
@@ -175,6 +415,7 @@ class PbManagerWidget(QtWidgets.QWidget):
             self.stock_list_table.setItem(row, 2, QtWidgets.QTableWidgetItem(str(stock_list.loc[row, 'weight'])))
             self.stock_list_table.setItem(row, 3, QtWidgets.QTableWidgetItem(stock_list.loc[row, 'exchange']))
 
+        # 更新持仓
         position = self.engine.origin_pos
 
         self.position_table.setRowCount(0)
@@ -184,6 +425,7 @@ class PbManagerWidget(QtWidgets.QWidget):
             for col in range(len(position.columns)):
                 self.position_table.setItem(row, col, QtWidgets.QTableWidgetItem(position.iloc[row, col]))
 
+        # 更新委托单
         df = self.engine.get_order_result()
 
         if df is None:
