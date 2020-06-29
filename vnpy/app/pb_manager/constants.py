@@ -1,6 +1,7 @@
+from enum import Enum
 
 
-class Direction():
+class Direction(Enum):
     """
     Direction of order/trade/position.
     '1'	买入
@@ -61,7 +62,7 @@ class Direction():
     SELL = '2'
 
 
-class OrderType():
+class OrderType(Enum):
     """
     '0'	限价;限价盘(零股)(港股通)
     '1'	任意价(期货);市价剩余转限价（上交所股票期权）
@@ -90,52 +91,55 @@ class OrderType():
     'g'	成交申报
     'h'	最优价限价成交申报	暂不支持
     """
+    LIMIT_ORDER = '0'
+    FIVE_PRICE_CANCEL = 'a'
+    FIVE_PRICE_TRANSFER = 'b'
 
 
 class Exchange():
     """
     Exchange.
     """
-    SSE = "1"    # 上交所 Shanghai Stock Exchange
-    SZSE = "2"   # 深交所 Shenzhen Stock Exchange
-    SHFE = "3"   # 上期所 Shanghai Futures Exchange
-    CZCE = "4"   # 郑商所 Zhengzhou Commodity Exchange
+    SSE = "1"  # 上交所 Shanghai Stock Exchange
+    SZSE = "2"  # 深交所 Shenzhen Stock Exchange
+    SHFE = "3"  # 上期所 Shanghai Futures Exchange
+    CZCE = "4"  # 郑商所 Zhengzhou Commodity Exchange
     CFFEX = "7"  # 中金所 China Financial Futures Exchange
-    DCE = "9"    # 大商所 Dalian Commodity Exchange
-    INE = "k"    # 能源期货交易所 Shanghai International Energy Exchange
-    GZEX = "j"   # 股转市场
+    DCE = "9"  # 大商所 Dalian Commodity Exchange
+    INE = "k"  # 能源期货交易所 Shanghai International Energy Exchange
+    GZEX = "j"  # 股转市场
     HSHGT = "n"  # 港股通（沪）
     HSZGT = "o"  # 港股通（深）
 
 
-class ServiceType():
+class ServiceType(Enum):
     """业务标识"""
-    NORMAL = 1          # 标准业务，股票，债券，基金买卖；新股，新债申购；港股通；质押式回购；基金申赎
-    SEC_MARGIN_TRD = 2   # 融资融券
-    OPTION = 3          # 期权业务
-    SH_BLOCK_TRD = 4     # 上交所大宗交易，需要LIC512203授权
-    SH_FIX_BENEFIT = 5   # 上交所固定收益，需要LIC512203授权
-    SZ_COMPREHENSIVE = 6    # 深交所综合协议，需要LIC512203授权
-    FUTURE = 7              # 期货业务，需要LIC512203授权
-    SCI_TECH_BOARD = 8     # 上交所科创板股票交易，需要LIC512203授权
-    SH_BLOCK_TRD_FOR_SCI_TECH = 9    # 大宗交易上交所科创板股票交易，需要LIC512203授权
+    NORMAL = 1  # 标准业务，股票，债券，基金买卖；新股，新债申购；港股通；质押式回购；基金申赎
+    SEC_MARGIN_TRD = 2  # 融资融券
+    OPTION = 3  # 期权业务
+    SH_BLOCK_TRD = 4  # 上交所大宗交易，需要LIC512203授权
+    SH_FIX_BENEFIT = 5  # 上交所固定收益，需要LIC512203授权
+    SZ_COMPREHENSIVE = 6  # 深交所综合协议，需要LIC512203授权
+    FUTURE = 7  # 期货业务，需要LIC512203授权
+    SCI_TECH_BOARD = 8  # 上交所科创板股票交易，需要LIC512203授权
+    SH_BLOCK_TRD_FOR_SCI_TECH = 9  # 大宗交易上交所科创板股票交易，需要LIC512203授权
 
 
-class OrderState():
+class OrderState(Enum):
     """委托状态"""
-    UNDECLARE = '1'         # 未报
-    WAIT_DECLARING = '2'    # 待报
-    DECLARING = '3'         # 正报
-    DECLARED = '4'          # 已报
-    INVALID = '5'           # 废单
-    PARTIAL_DEALT = '6'     # 部成
-    ALL_DEALT = '7'         # 已成
+    UNDECLARE = '1'  # 未报
+    WAIT_DECLARING = '2'  # 待报
+    DECLARING = '3'  # 正报
+    DECLARED = '4'  # 已报
+    INVALID = '5'  # 废单
+    PARTIAL_DEALT = '6'  # 部成
+    ALL_DEALT = '7'  # 已成
     PARTIAL_CANCELED = '8'  # 部撤
-    ALL_CANCELED = '9'      # 已撤
-    WAIT_CANCELED = 'a'     # 待撤
-    UNAPPROVED = 'b'        # 未审批
-    DENIED = 'c'            # 审批拒绝
-    WITHDRAW = 'd'          # 未审批即撤销
+    ALL_CANCELED = '9'  # 已撤
+    WAIT_CANCELED = 'a'  # 待撤
+    UNAPPROVED = 'b'  # 未审批
+    DENIED = 'c'  # 审批拒绝
+    WITHDRAW = 'd'  # 未审批即撤销
 
 
 POSITION_COLUMN_NAMES = [

@@ -20,7 +20,7 @@ PB_CD_FILENAME = 'XHPT_CD' + str(datetime.now().date()).replace('-', '') + '.dbf
 CAPITAL_FILENAME = 'ZJ_STOCK_' + str(datetime.now().date()).replace('-', '') + '.csv'
 POSITION_FILENAME = 'CC_STOCK_' + str(datetime.now().date()).replace('-', '') + '.csv'
 
-dictGDDM = {Exchange.SSE: 'A187702503', Exchange.SZSE: '0147434049'}  # C20	股东代码
+dictGDDM = {Exchange.SSE: '0899225880', Exchange.SZSE: 'B883246832'}  # C20	股东代码
 dictWTJGLX = {Exchange.SSE: 'a', Exchange.SZSE: 'A'}  # C1委托价格类型
 
 MAX_ORDER_VOL = 50000  # 每个订单最大不超过500手
