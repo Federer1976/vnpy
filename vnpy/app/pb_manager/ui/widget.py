@@ -256,7 +256,7 @@ class PbManagerWidget(QtWidgets.QWidget):
             self.sell_order_table.setItem(row, 1, QtWidgets.QTableWidgetItem(str(sell_order_list.iloc[row, 0]).strip()))
             self.sell_order_table.setItem(row, 2, QtWidgets.QTableWidgetItem(str(sell_order_list.iloc[row, 4]).strip()))
             self.sell_order_table.setItem(row, 3, QtWidgets.QTableWidgetItem(str(sell_order_list.iloc[row, 1]).strip()))
-            self.sell_order_table.setItem(row, 4, QtWidgets.QTableWidgetItem(str(sell_order_list.iloc[row, 2]).strip()))
+            self.sell_order_table.setItem(row, 4, QtWidgets.QTableWidgetItem(str(int(sell_order_list.iloc[row, 2])).strip()))
             self.sell_order_table.setItem(row, 5, QtWidgets.QTableWidgetItem(str(sell_order_list.iloc[row, 3]).strip()))
 
         self.tab_table.setCurrentIndex(1)

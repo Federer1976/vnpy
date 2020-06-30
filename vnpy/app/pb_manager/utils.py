@@ -23,7 +23,7 @@ POSITION_FILENAME = 'CC_STOCK_' + str(datetime.now().date()).replace('-', '') + 
 dictGDDM = {Exchange.SSE: '0899225880', Exchange.SZSE: 'B883246832'}  # C20	股东代码
 dictWTJGLX = {Exchange.SSE: 'a', Exchange.SZSE: 'A'}  # C1委托价格类型
 
-MAX_ORDER_VOL = 50000  # 每个订单最大不超过500手
+MAX_ORDER_VOL = 10000  # 每个订单最大不超过500手
 
 
 def get_serial_no():
@@ -110,7 +110,7 @@ def split_order(data: pd.DataFrame):
     origin_data = data.copy()
     # data['real_vol'] = data['real_vol'].transform(lambda x: math.floor(x / 100) * 100)
 
-    origin_data['real_vol'] = origin_data['real_vol'].transform(lambda x: math.floor(x / 100) * 100)
+    # origin_data['real_vol'] = origin_data['real_vol'].transform(lambda x: math.floor(x / 100) * 100)
 
     standard_order_num = origin_data['real_vol'].transform(lambda x: x // MAX_ORDER_VOL)
     standard_order_num = standard_order_num[standard_order_num > 0]
@@ -123,7 +123,7 @@ def split_order(data: pd.DataFrame):
         row = origin_data.loc[standard_order_num.index[n]].copy()
         row['vol'] = MAX_ORDER_VOL
         rows = []
-        for i in range(standard_order_num[n]):
+        for i in range(math.ceil(standard_order_num[n])):
             rows.append(row)
         new_order = new_order.append(pd.DataFrame(rows))
 

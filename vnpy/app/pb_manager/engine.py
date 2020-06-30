@@ -165,14 +165,15 @@ class PbManagerEngine(BaseEngine):
         position['price'] = stock_price['price']
         sell_list = position.fillna(value={'real_vol': position['available_vol']})
 
-        sell_list = sell_list[sell_list['real_vol'] > 100]
+        sell_list = sell_list[sell_list['real_vol'] > 0]
 
         stock_price = QA_fetch_get_stock_realtime(sell_list.index.tolist(),
                                                   ip='120.234.57.15', port=7709).reset_index().set_index('code')
         sell_list['price'] = stock_price['price']
         sell_list = split_order(sell_list)
 
-        return sell_list[sell_list['vol'] > 0]
+        # return sell_list[sell_list['vol'] > 0]
+        return sell_list
 
     def generate_sell_order(
             self,
