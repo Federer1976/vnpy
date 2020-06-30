@@ -254,7 +254,7 @@ class PbManagerWidget(QtWidgets.QWidget):
             checkbox.setCheckState(QtCore.Qt.Checked)
             self.sell_order_table.setItem(row, 0, checkbox)
             self.sell_order_table.setItem(row, 1, QtWidgets.QTableWidgetItem(str(sell_order_list.iloc[row, 0]).strip()))
-            self.sell_order_table.setItem(row, 2, QtWidgets.QTableWidgetItem(""))
+            self.sell_order_table.setItem(row, 2, QtWidgets.QTableWidgetItem(str(sell_order_list.iloc[row, 4]).strip()))
             self.sell_order_table.setItem(row, 3, QtWidgets.QTableWidgetItem(str(sell_order_list.iloc[row, 1]).strip()))
             self.sell_order_table.setItem(row, 4, QtWidgets.QTableWidgetItem(str(sell_order_list.iloc[row, 2]).strip()))
             self.sell_order_table.setItem(row, 5, QtWidgets.QTableWidgetItem(str(sell_order_list.iloc[row, 3]).strip()))
@@ -378,6 +378,7 @@ class PbManagerWidget(QtWidgets.QWidget):
 
         for row in range(len(stock_list)):
             self.stock_list_table.setItem(row, 0, QtWidgets.QTableWidgetItem(stock_list.loc[row, 'code']))
+            self.stock_list_table.setItem(row, 1, QtWidgets.QTableWidgetItem(stock_list.loc[row, 'name']))
             self.stock_list_table.setItem(row, 2, QtWidgets.QTableWidgetItem(str(stock_list.loc[row, 'weight'])))
             self.stock_list_table.setItem(row, 3, QtWidgets.QTableWidgetItem(stock_list.loc[row, 'exchange']))
 

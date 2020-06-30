@@ -78,9 +78,9 @@ class PbManagerEngine(BaseEngine):
 
         try:
             df = pd.read_csv(filename, sep=',', encoding="gbk", header=0,
-                             usecols=[3, 14, 18],  # ['证券代码', '可用数量', '交易市场']
+                             usecols=[3, 4, 14, 18],  # ['证券代码', '可用数量', '交易市场', '证券名称']
                              dtype=object,
-                             names=['code', 'available_vol', 'exchange'])
+                             names=['code', 'name', 'available_vol', 'exchange'])
         except Exception as e:
             print(e)
             return None
@@ -102,7 +102,7 @@ class PbManagerEngine(BaseEngine):
         """
         获取购买的股票列表及股票权重
         :param filename: 文件名
-        :return: DataFrame，数据列名：['code', 'weight', 'exchange']
+        :return: DataFrame，数据列名：['code', 'weight', 'exchange', 'name']
         """
         try:
             df = pd.read_excel(filename).dropna(thresh=2)
@@ -111,7 +111,7 @@ class PbManagerEngine(BaseEngine):
             print(e)
             return None
 
-        df = df.set_index('code').groupby(level='code').sum().reset_index()
+        # df = df.set_index('code').groupby(level='code').sum().reset_index()
 
         temp = df.loc[:, 'code'].str.extract(r'([0-9]+).([A-Z]+)')
 
@@ -121,7 +121,7 @@ class PbManagerEngine(BaseEngine):
             .str.replace(r'([A-Z]{2})',
                          repl=lambda m: Exchange.SSE if m.group(
                              0) == 'SH' else Exchange.SZSE)
-        self.stock_list = df[['code', 'weight', 'exchange']].set_index('code')
+        self.stock_list = df[['code', 'weight', 'exchange', 'name']].set_index('code')
 
         return (self.stock_list)
 
