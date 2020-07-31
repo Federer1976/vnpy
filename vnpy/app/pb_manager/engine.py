@@ -78,7 +78,7 @@ class PbManagerEngine(BaseEngine):
 
         try:
             df = pd.read_csv(filename, sep=',', encoding="gbk", header=0,
-                             usecols=[3, 4, 14, 18],  # ['证券代码', '可用数量', '交易市场', '证券名称']
+                             usecols=[3, 4, 12, 18],  # ['证券代码', '持仓数量', '交易市场', '证券名称']
                              dtype=object,
                              names=['code', 'name', 'available_vol', 'exchange'])
         except Exception as e:
@@ -93,7 +93,7 @@ class PbManagerEngine(BaseEngine):
                          if m.group(0) == '上交所A' else Exchange.SZSE)
 
         self.position = df[df.available_vol != 0].set_index('code')
-        return (self.position)
+        return self.position
 
     def get_stock_list_for_buy(
             self,

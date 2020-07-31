@@ -309,7 +309,7 @@ class PbManagerWidget(QtWidgets.QWidget):
             self.buy_order_table.setItem(row, 1, QtWidgets.QTableWidgetItem(str(buy_order_list.iloc[row, 0]).strip()))
             self.buy_order_table.setItem(row, 2, QtWidgets.QTableWidgetItem(""))
             self.buy_order_table.setItem(row, 3, QtWidgets.QTableWidgetItem(str(buy_order_list.iloc[row, 1]).strip()))
-            self.buy_order_table.setItem(row, 4, QtWidgets.QTableWidgetItem(str(buy_order_list.iloc[row, 2]).strip()))
+            self.buy_order_table.setItem(row, 4, QtWidgets.QTableWidgetItem(str(int(buy_order_list.iloc[row, 2])).strip()))
             self.buy_order_table.setItem(row, 5, QtWidgets.QTableWidgetItem(str(buy_order_list.iloc[row, 3]).strip()))
 
         self.tab_table.setCurrentIndex(2)
