@@ -230,7 +230,7 @@ class PbManagerEngine(BaseEngine):
 
         buy_list = stock_list_for_buy.fillna(value={'real_vol': stock_list_for_buy['vol_for_buy']})
         buy_list['price'] = stock_price['price']
-
+        buy_list['real_vol'] = buy_list['real_vol'].apply(lambda x: round(int(x)/100)*100)
         buy_list = buy_list[buy_list['real_vol'] > 0]
 
         buy_list = split_order(buy_list)
