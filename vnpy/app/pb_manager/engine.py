@@ -52,7 +52,7 @@ class PbManagerEngine(BaseEngine):
                                                            'RZRQ') if rzrq_state == QtCore.Qt.Checked else INPUT_FILENAME))
         self.get_total_capital_from_pb(self.file_path + os.sep +
                                        (CAPITAL_FILENAME.replace('STOCK',
-                                                                'RZRQ') if rzrq_state == QtCore.Qt.Checked else CAPITAL_FILENAME))
+                                                                'RZRQ') if rzrq_state == QtCore.Qt.Checked else CAPITAL_FILENAME), rzrq_state)
 
         self._strCPBH = strCPBH  # C32	产品代码/基金代码
         self._strZCDYBH = strZCDYBH  # C16	单元编号/组合编号
@@ -128,6 +128,7 @@ class PbManagerEngine(BaseEngine):
     def get_total_capital_from_pb(
             self,
             filename: str,
+            rzrq_state,
     ) -> float:
         """
         get total capital.
@@ -135,8 +136,9 @@ class PbManagerEngine(BaseEngine):
         """
         try:
             capital = pd.read_csv(filename, sep=',', encoding="gbk")
-            self.available_capital = capital.loc[0, '可用余额']
-            self.total_money = capital.loc[0, '单元净值']
+
+            self.available_capital = capital.loc[0, '可用余额'] if rzrq_state != QtCore.Qt.Checked else capital.loc[0, '买担保品可用资金']
+            self.total_money = capital.loc[0, '单元净值'] if rzrq_state != QtCore.Qt.Checked else capital.loc[0, '净资产']
             return self.total_money
 
         except Exception as e:
@@ -323,12 +325,12 @@ class PbManagerEngine(BaseEngine):
 
             if order_list.iloc[n]['exchange'] == Exchange.SZSE:
                 if rzrq_state == QtCore.Qt.Checked:
-                    gddm = '0899225880'
+                    gddm = '0680041879'
                 else:
                     gddm = '0899225880'
             else:
                 if rzrq_state == QtCore.Qt.Checked:
-                    gddm = 'B883246832'
+                    gddm = 'E056807036'
                 else:
                     gddm = 'B883246832'
 
